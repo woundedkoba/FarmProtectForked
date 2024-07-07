@@ -1,0 +1,13 @@
+# ================= [FarmProtect] ================== #
+# By WoundedKoba
+# Configuration file
+# ================================================== #
+
+# Protect from explosions?
+ExplosionProtect: true
+
+# Multi-world support?
+MultiWorld: false
+Worlds:
+   - world
+   - world_nether
