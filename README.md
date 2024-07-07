@@ -1,7 +1,7 @@
 # FarmProtectForked
 A Minecraft Plugin Forked from Jacklin213's FarmProtect 1.9.0
 
-FarmProtect makes sure NOBODY (including your self) makes farmland turn back to normal by either jumping on it or walking over it. It has some configurable features for people that like to tweek around with the configuration. 
+FarmProtect is a Paper plugin that makes sure NOBODY (including your self) makes farmland turn back to normal by either jumping on it or walking over it. It has some configurable features for people that like to tweek around with the configuration. 
 
 ##### MultiWorld Support
 You can now choose to select which worlds you want to protect and which worlds you don't.
