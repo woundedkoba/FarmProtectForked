@@ -17,7 +17,7 @@ To turn it off edit the config or just use /fp toggle explosionprotect
 
 All credit to Jacklin213 for all original work. I only take credit for having updated this plugin for MC 1.21 and other items listed below.
 
-See docs > ChangeLog.md for Changes made in each version.
+See docs > Change Log.md for Changes made in each version.
 
 
 

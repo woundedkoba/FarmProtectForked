@@ -14,8 +14,6 @@ FarmProtectForked v0.0.2
 
 --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 FarmProtectForked v0.0.1
-
-Without going into full detail changes include but are not limited to:
 - Upgraded to Java 21 (Jacklin213's FarmProtect 1.9.0 uses Java 8)
 - Upgraded to Paper API 1.21-R0.1-SNAPSHOT (Jacklin213's FarmProtect 1.9.0 did not specify an API Version)
 - Upgraded to Maven Compiler Plugin 3.13.0
