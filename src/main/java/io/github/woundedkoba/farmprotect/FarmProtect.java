@@ -4,12 +4,12 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Iterator;
 import java.util.List;
 import java.util.logging.Logger;
 import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
 import net.kyori.adventure.text.format.NamedTextColor;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.command.Command;
@@ -22,23 +22,25 @@ import org.bukkit.event.block.BlockExplodeEvent;
 import org.bukkit.event.entity.EntityExplodeEvent;
 import org.bukkit.event.entity.EntityInteractEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
-import org.bukkit.plugin.Plugin;
+//import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.jetbrains.annotations.NotNull;
 
 @SuppressWarnings("deprecation")
 public class FarmProtect extends JavaPlugin implements Listener {
-  public static FarmProtect plugin;
+  //public static FarmProtect plugin;
   
   public Logger log;
   
-  public String chatPluginName = ChatColor.translateAlternateColorCodes('&', "&c[&6FarmProtect&c] ");
-  
+  //public String chatPluginName = ChatColor.translateAlternateColorCodes('&', "&c[&6FarmProtect&c] ");
+  public Component chatPluginName = LegacyComponentSerializer.legacy('&').deserialize("&c[&6FarmProtect&c] ");
+
   List<String> worlds = new ArrayList<>();
-  
+
   List<Material> cropsList = new ArrayList<>(
-      
-      Arrays.asList(new Material[] { Material.WHEAT, Material.MELON_STEM, Material.PUMPKIN_STEM, Material.CARROT, Material.POTATO }));
+          Arrays.asList(Material.WHEAT, Material.MELON_STEM, Material.PUMPKIN_STEM, Material.CARROT, Material.POTATO)
+  );
   
   public void onEnable() {
     setLogger();
@@ -49,11 +51,12 @@ public class FarmProtect extends JavaPlugin implements Listener {
         
         });
     PluginManager pm = getServer().getPluginManager();
-    pm.registerEvents(this, (Plugin)this);
-    this.log.info(String.format("Version %s by WoundedKoba has been Enabled!", new Object[] { getDescription().getVersion() }));
+    pm.registerEvents(this,this);
+    this.log.info(String.format("Version %s by WoundedKoba has been Enabled!", getDescription().getVersion()));
   }
-  
-  public boolean onCommand(CommandSender sender, Command cmd, String commandLabel, String[] args) {
+
+  @Override
+  public boolean onCommand(@NotNull CommandSender sender, @NotNull Command cmd, @NotNull String commandLabel, @NotNull String @NotNull [] args) {
     if (args.length == 0 || (args.length == 1 && args[0].equalsIgnoreCase("help"))) {
       sendHelp(sender, 1);
     } else if (args.length == 1) {
@@ -71,7 +74,7 @@ public class FarmProtect extends JavaPlugin implements Listener {
       } else {
         sendHelp(sender, 1);
       } 
-    } else if (args.length > 1) {
+    } else {
       if (args[0].equalsIgnoreCase("add")) {
         if (sender.hasPermission("farmprotect.addworld")) {
           if (Bukkit.getWorld(args[1]) == null) {
@@ -138,20 +141,24 @@ public class FarmProtect extends JavaPlugin implements Listener {
       sender.sendMessage(formatColor("&b/fp reload &f- &eReloads the config"));
     } 
   }
-  
+
   public String formatColor(String message) {
-    return ChatColor.translateAlternateColorCodes('&', message);
+    Component component = LegacyComponentSerializer.legacy('&').deserialize(message);
+    return LegacyComponentSerializer.legacy('&').serialize(component);
   }
-  
+
   @EventHandler
   public void soilChangePlayer(PlayerInteractEvent event) {
-    if (event.getAction() == Action.PHYSICAL && event.getClickedBlock().getType() == Material.FARMLAND)
+    Block clickedBlock = event.getClickedBlock();
+    if (event.getAction() == Action.PHYSICAL && clickedBlock != null && clickedBlock.getType() == Material.FARMLAND) {
       if (getConfig().getBoolean("MultiWorld")) {
-        if (this.worlds.contains(event.getClickedBlock().getWorld().getName().toLowerCase()))
-          event.setCancelled(true); 
+        if (this.worlds.contains(clickedBlock.getWorld().getName().toLowerCase())) {
+          event.setCancelled(true);
+        }
       } else {
         event.setCancelled(true);
-      }  
+      }
+    }
   }
   
   @EventHandler
@@ -170,13 +177,8 @@ public class FarmProtect extends JavaPlugin implements Listener {
     if (getConfig().getBoolean("ExplosionProtect")) {
       if (getConfig().getBoolean("MultiWorld") && 
         !this.worlds.contains(event.getBlock().getWorld().getName().toLowerCase()))
-        return; 
-      Iterator<Block> blockList = event.blockList().iterator();
-      while (blockList.hasNext()) {
-        Block block = blockList.next();
-        if (block.getType() == Material.FARMLAND || this.cropsList.contains(block.getType()))
-          blockList.remove(); 
-      } 
+        return;
+      event.blockList().removeIf(block -> block.getType() == Material.FARMLAND || this.cropsList.contains(block.getType()));
     } 
   }
   
@@ -185,23 +187,18 @@ public class FarmProtect extends JavaPlugin implements Listener {
     if (getConfig().getBoolean("ExplosionProtect")) {
       if (getConfig().getBoolean("MultiWorld") && 
         !this.worlds.contains(event.getEntity().getWorld().getName().toLowerCase()))
-        return; 
-      Iterator<Block> blockList = event.blockList().iterator();
-      while (blockList.hasNext()) {
-        Block block = blockList.next();
-        if (block.getType() == Material.FARMLAND || this.cropsList.contains(block.getType()))
-          blockList.remove(); 
-      } 
+        return;
+      event.blockList().removeIf(block -> block.getType() == Material.FARMLAND || this.cropsList.contains(block.getType()));
     } 
   }
   
   public void toggleConfig(CommandSender sender, String configKey, String permission) {
     if (sender.hasPermission(permission)) {
       if (getConfig().getBoolean(configKey)) {
-        getConfig().set(configKey, Boolean.valueOf(false));
+        getConfig().set(configKey, false);
         sender.sendMessage(String.valueOf(this.chatPluginName) + NamedTextColor.RED + configKey + " has been turned off.");
       } else {
-        getConfig().set(configKey, Boolean.valueOf(true));
+        getConfig().set(configKey, true);
         sender.sendMessage(String.valueOf(this.chatPluginName) + NamedTextColor.GREEN + configKey + " has been turned on.");
       } 
       try {
